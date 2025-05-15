@@ -1,4 +1,4 @@
-docker run --network=untitled_default --rm `
+docker run --network=spark-wordcount_default --rm `
 -v ${PWD}/data:/data `
 -v ${PWD}/listeners:/opt/bitnami/spark/listeners `
 docker.io/bitnami/spark:3.5 `
@@ -8,5 +8,5 @@ spark-submit --master spark://spark:7077 `
 --conf spark.driver.extraClassPath=/opt/bitnami/spark/listeners/* `
 --conf spark.executor.extraClassPath=/opt/bitnami/spark/listeners/* `
 /data/spark-wordcount-1.0-SNAPSHOT.jar `
-/data/input/ `
+/data/input.txt `
 /data/output/result-folder
