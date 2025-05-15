@@ -1,0 +1,21 @@
+// ============ CONSTRAINTS ============
+
+// Ensure Dataset nodes have unique IDs (e.g., file paths, table names)
+CREATE CONSTRAINT dataset_id_unique IF NOT EXISTS
+FOR (d:Dataset)
+REQUIRE d.id IS UNIQUE;
+
+// Ensure Transformation nodes have unique IDs (e.g., jobId_stepName)
+CREATE CONSTRAINT transformation_id_unique IF NOT EXISTS
+FOR (t:Transformation)
+REQUIRE t.id IS UNIQUE;
+
+// Optionally enforce unique Job IDs
+CREATE CONSTRAINT job_id_unique IF NOT EXISTS
+FOR (j:Job)
+REQUIRE j.id IS UNIQUE;
+
+// ============ INDEXES (optional but helpful) ============
+CREATE INDEX dataset_type_index IF NOT EXISTS FOR (d:Dataset) ON (d.type);
+CREATE INDEX transformation_name_index IF NOT EXISTS FOR (t:Transformation) ON (t.name);
+CREATE INDEX transformation_timestamp_index IF NOT EXISTS FOR (t:Transformation) ON (t.timestamp);
