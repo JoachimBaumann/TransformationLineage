@@ -21,7 +21,7 @@ services:
   spark-worker:
     image: docker.io/bitnami/spark:3.5
     deploy:
-      replicas: 3
+      replicas: 1
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077

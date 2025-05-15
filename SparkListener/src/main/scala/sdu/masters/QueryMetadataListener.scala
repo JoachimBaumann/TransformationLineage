@@ -8,6 +8,8 @@ import org.apache.spark.sql.execution.FileSourceScanExec
 
 class QueryMetadataListener extends QueryExecutionListener {
 
+  private val producer = new KafkaLineageProducer("kafka:9092", "LineageEvent")
+
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     val spark = SparkSession.active
     val jobName = spark.conf.get("spark.custom.jobName", "UnknownJob")
@@ -22,7 +24,22 @@ class QueryMetadataListener extends QueryExecutionListener {
       case _ => "N/A"
     }
 
-    println(s"[METADATA] job=$jobName input=$inputPaths output=$outputPath duration=${durationMs}ms")
+    // Skip events that are not "real" jobs with meaningful output
+    if (inputPaths.nonEmpty && outputPath != "N/A") {
+      val lineageJson =
+        s"""{
+           |  "jobName": "$jobName",
+           |  "inputPaths": "$inputPaths",
+           |  "outputPath": "$outputPath",
+           |  "durationMs": $durationMs,
+           |  "status": "SUCCESS"
+           |}""".stripMargin
+
+      println(s"[METADATA] job=$jobName input=$inputPaths output=$outputPath duration=${durationMs}ms")
+      producer.sendEvent(lineageJson)
+    } else {
+      println(s"[SKIPPED] job=$jobName — incomplete or non-output operation")
+    }
   }
 
   override def onFailure(funcName: String, qe: QueryExecution, exception: Exception): Unit = {
