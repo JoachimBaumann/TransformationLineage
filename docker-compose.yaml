@@ -38,7 +38,6 @@ services:
       - ./data:/data
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
       - ./listeners:/opt/bitnami/spark/listeners
-      - ./log4j2.properties:/opt/bitnami/spark/conf/log4j2.properties
   neo4j:
     image: neo4j:latest
     environment:
