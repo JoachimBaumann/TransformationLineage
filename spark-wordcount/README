@@ -1,4 +1,4 @@
-docker run --network=spark-wordcount_default --rm `
+docker run --network=lineage_network --rm `
 -v ${PWD}/data:/data `
 -v ${PWD}/listeners:/opt/bitnami/spark/listeners `
 docker.io/bitnami/spark:3.5 `

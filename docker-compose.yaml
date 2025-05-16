@@ -11,13 +11,15 @@ services:
       - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/listeners/*
       - SPARK_DAEMON_JAVA_OPTS=-Dspark.extraListeners=sdu.masters.GlobalMetadataListener
     ports:
-      - '8080:8080'
+      - '8083:8080'
       - '7077:7077'
     volumes:
       - ./data:/data
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
       - ./listeners:/opt/bitnami/spark/listeners
       - ./log4j2.properties:/opt/bitnami/spark/conf/log4j2.properties
+    networks:
+      - common_net
   spark-worker:
     image: docker.io/bitnami/spark:3.5
     deploy:
@@ -38,6 +40,8 @@ services:
       - ./data:/data
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
       - ./listeners:/opt/bitnami/spark/listeners
+    networks:
+      - common_net
   neo4j:
     image: neo4j:latest
     environment:
@@ -49,6 +53,8 @@ services:
       - "7474:7474"
       - "7687:7687"
     restart: always
+    networks:
+      - common_net
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -57,6 +63,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
+    networks:
+      - common_net
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -71,3 +79,11 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - common_net
+
+
+networks:
+  common_net:
+    external: true
+    name: lineage_network

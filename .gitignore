@@ -42,3 +42,5 @@ build/
 /data/
 /spark-wordcount/README
 
+
+/Airflow_orchestrator/Airflow_Setup/logs/
