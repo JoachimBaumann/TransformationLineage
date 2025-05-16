@@ -1,0 +1,11 @@
+For at køre systemet gør følgende:
+Først kør en
+
+docker-compose up -d
+
+Derefter gør readme'en i wordcount.
+Hvis fejl.
+Vær sikker på at output pathen er unique (den ikke allerede er kørt med den output sti).
+For at bekræfte at det er kørt gå ind i docker desktop -> Kafka -> CLI og kør følgende:
+
+kafka-console-consumer --topic LineageEvent --from-beginning --bootstrap-server localhost:9092
