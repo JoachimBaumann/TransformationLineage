@@ -28,3 +28,6 @@ ENV SPARK_HOME=/opt/spark
 ENV PATH=$SPARK_HOME/bin:$PATH
 
 USER airflow
+
+# Install the Apache Spark provider for Airflow
+RUN pip install apache-airflow-providers-apache-spark

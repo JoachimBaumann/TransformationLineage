@@ -19,13 +19,11 @@ with DAG(
     submit_spark_job = SparkSubmitOperator(
         task_id='run_pyspark_wordcount',
         conn_id='Spark',  # keep lowercase if that’s your connection ID
-        application='/opt/airflow/dags/scripts/wordcount.py',  # Python script path inside container
-        application_args=['/data/input.txt', '/data/output'],  # Adjust as needed
+        application='/data/scripts/wordcount.py',  # Python script path inside container
+        application_args=['/data/1.txt', '/data/output/1'],  # Adjust as needed
         name='pyspark_wordcount_job',
+        deploy_mode='cluster',
         conf={
-            "spark.executor.memory": "1g",
-            "spark.driver.memory": "1g",
-            "spark.master": "spark://spark:7077"  # Points to your Spark cluster
         },
         verbose=True
     )
