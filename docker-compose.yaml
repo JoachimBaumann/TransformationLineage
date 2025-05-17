@@ -9,7 +9,6 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
       - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/listeners/*
-      - SPARK_DAEMON_JAVA_OPTS=-Dspark.extraListeners=sdu.masters.GlobalMetadataListener
     ports:
       - '8083:8080'
       - '7077:7077'
@@ -35,7 +34,6 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
       - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/listeners/*
-      - SPARK_SUBMIT_OPTIONS=--conf spark.extraListeners=sdu.masters.GlobalMetadataListener
     volumes:
       - ./data:/data
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
