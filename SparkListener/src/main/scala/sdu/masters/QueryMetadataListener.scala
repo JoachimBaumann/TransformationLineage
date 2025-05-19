@@ -6,6 +6,9 @@ import org.apache.spark.sql.util.QueryExecutionListener
 import org.apache.spark.sql.execution.datasources._
 import org.apache.spark.sql.execution.FileSourceScanExec
 
+import java.util.UUID
+import java.time.Instant
+
 class QueryMetadataListener extends QueryExecutionListener {
 
   private val producer = new KafkaLineageProducer("joachimbaumann.dk:9092", "LineageEvent")
@@ -15,27 +18,37 @@ class QueryMetadataListener extends QueryExecutionListener {
     val jobName = spark.conf.get("spark.custom.jobName", "UnknownJob")
     val durationMs = durationNs / 1000000
 
-    val inputPaths = qe.sparkPlan.collect {
+
+    val inputPathsList = qe.sparkPlan.collect {
       case fs: FileSourceScanExec => fs.relation.location.rootPaths.map(_.toString)
-    }.flatten.distinct.mkString(",")
+    }.flatten.distinct
+
+    val inputPathsJsonArray = inputPathsList.map(p => s""""$p"""").mkString("[", ", ", "]")
+
 
     val outputPath = qe.logical match {
       case insert: InsertIntoHadoopFsRelationCommand => insert.outputPath.toString
       case _ => "N/A"
     }
 
-    // Skip events that are not "real" jobs with meaningful output
-    if (inputPaths.nonEmpty && outputPath != "N/A") {
+    if (inputPathsList.nonEmpty && outputPath != "N/A") {
+      val transformationId = UUID.randomUUID().toString
+      val transformationName = jobName
+      val timestamp = Instant.now().toString
+
+      val inputPathsJsonArray = inputPathsList.map(p => s""""$p"""").mkString("[", ", ", "]")
+
       val lineageJson =
         s"""{
-           |  "jobName": "$jobName",
-           |  "inputPaths": "$inputPaths",
+           |  "transformationId": "$transformationId",
+           |  "transformationName": "$transformationName",
+           |  "timestamp": "$timestamp",
+           |  "duration": $durationMs,
+           |  "inputPaths": $inputPathsJsonArray,
            |  "outputPath": "$outputPath",
-           |  "durationMs": $durationMs,
-           |  "status": "SUCCESS"
            |}""".stripMargin
 
-      println(s"[METADATA] job=$jobName input=$inputPaths output=$outputPath duration=${durationMs}ms")
+      println(s"[LINEAGE] $lineageJson")
       producer.sendEvent(lineageJson)
     } else {
       println(s"[SKIPPED] job=$jobName — incomplete or non-output operation")

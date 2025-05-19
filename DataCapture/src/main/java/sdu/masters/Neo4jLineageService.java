@@ -20,30 +20,35 @@ public class Neo4jLineageService implements AutoCloseable {
     public void recordLineage(LineageRecord record) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> {
-                // Create output dataset node
+                // Create or update output dataset node
                 tx.run(
-                        "MERGE (out:Dataset {id: $outputPath}) " +
-                                "SET out.type = $format",
+                        "MERGE (out:Dataset {id: $outputPath})",
+                                //"SET out.format = $format",
                         Map.of(
-                                "outputPath", record.outputPath,
-                                "format", record.datasetFormat
+                                "outputPath", record.outputPath
+                                //"format", record.datasetFormat
                         )
                 );
 
-                // Create transformation node
+                // Create or update transformation node
                 tx.run(
                         "MERGE (t:Transformation {id: $transformationId}) " +
-                                "SET t.name = $name, t.version = $version, t.type = $type, t.timestamp = $timestamp",
+                                "SET t.name = $name, " +
+                                "    t.version = $version, " +
+                                "    t.type = $type, " +
+                                "    t.timestamp = $timestamp, " +
+                                "    t.duration = $duration",
                         Map.of(
                                 "transformationId", record.transformationId,
                                 "name", record.transformationName,
-                                "version", record.transformationVersion,
-                                "type", record.transformationType,
-                                "timestamp", record.timestamp
+                                /*"version", record.transformationVersion,
+                                "type", record.transformationType,*/
+                                "timestamp", record.timestamp,
+                                "duration", record.duration
                         )
                 );
 
-                // Link transformation to output
+                // Create relationship from transformation to output
                 tx.run(
                         "MATCH (t:Transformation {id: $transformationId}), " +
                                 "      (out:Dataset {id: $outputPath}) " +
@@ -54,17 +59,17 @@ public class Neo4jLineageService implements AutoCloseable {
                         )
                 );
 
-                // Link each input to transformation
+                // Link each input dataset to the transformation
                 for (String inputPath : record.inputPaths) {
                     tx.run(
-                            "MERGE (input:Dataset {id: $inputPath}) " +
-                                    "SET input.type = $format " +
-                                    "WITH input " +
+                            "MERGE (in:Dataset {id: $inputPath}) " +
+                                    "SET in.format = $format " +
+                                    "WITH in " +
                                     "MATCH (t:Transformation {id: $transformationId}) " +
-                                    "MERGE (input)-[:INPUT_TO]->(t)",
+                                    "MERGE (in)-[:INPUT_TO]->(t)",
                             Map.of(
                                     "inputPath", inputPath,
-                                    "format", record.datasetFormat,
+                                    //"format", record.datasetFormat,
                                     "transformationId", record.transformationId
                             )
                     );
@@ -74,6 +79,7 @@ public class Neo4jLineageService implements AutoCloseable {
             });
         }
     }
+
 
     public List<String> traceLineageBackwards(String outputDatasetId) {
         List<String> lineage = new ArrayList<>();

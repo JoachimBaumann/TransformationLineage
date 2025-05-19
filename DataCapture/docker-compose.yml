@@ -20,5 +20,4 @@ services:
       NEO4J_USER: "neo4j"
       NEO4J_PASSWORD: "ABCD123456abc"
     depends_on:
-      - kafka
       - neo4j
