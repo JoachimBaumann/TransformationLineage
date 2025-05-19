@@ -14,3 +14,8 @@ For at bekræfte at det er kørt gå ind i docker desktop -> Kafka -> CLI og kø
 kafka-topics --bootstrap-server localhost:9092 --topic LineageEvent --create --replication-factor 1
 
 kafka-console-consumer --topic LineageEvent --from-beginning --bootstrap-server localhost:9092
+
+For at køre vores spark job:
+gcloud dataproc jobs submit spark   --cluster=sparkcluster   --region=europe-west4   --class=sdu.masters.WordCount   --jars=gs://sparksbucket/scripts/spark-wordcount-1.0-SNAPSHOT.jar   -- gs://sparksbucket/input/input.txt gs://sparksbucket/output/
+
+-- gs..... er input, feltet efter er output.
