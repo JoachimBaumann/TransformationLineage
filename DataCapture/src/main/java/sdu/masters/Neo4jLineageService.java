@@ -34,8 +34,8 @@ public class Neo4jLineageService implements AutoCloseable {
                 tx.run(
                         "MERGE (t:Transformation {id: $transformationId}) " +
                                 "SET t.name = $name, " +
-                                "    t.version = $version, " +
-                                "    t.type = $type, " +
+/*                                "    t.version = $version, " +
+                                "    t.type = $type, " +*/
                                 "    t.timestamp = $timestamp, " +
                                 "    t.duration = $duration",
                         Map.of(
@@ -63,7 +63,7 @@ public class Neo4jLineageService implements AutoCloseable {
                 for (String inputPath : record.inputPaths) {
                     tx.run(
                             "MERGE (in:Dataset {id: $inputPath}) " +
-                                    "SET in.format = $format " +
+/*                                    "SET in.format = $format " +*/
                                     "WITH in " +
                                     "MATCH (t:Transformation {id: $transformationId}) " +
                                     "MERGE (in)-[:INPUT_TO]->(t)",
