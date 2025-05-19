@@ -8,7 +8,7 @@ import org.apache.spark.sql.execution.FileSourceScanExec
 
 class QueryMetadataListener extends QueryExecutionListener {
 
-  private val producer = new KafkaLineageProducer("kafka:9092", "LineageEvent")
+  private val producer = new KafkaLineageProducer("joachimbaumann.dk:9092", "LineageEvent")
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     val spark = SparkSession.active
