@@ -8,4 +8,9 @@ Hvis fejl.
 Vær sikker på at output pathen er unique (den ikke allerede er kørt med den output sti).
 For at bekræfte at det er kørt gå ind i docker desktop -> Kafka -> CLI og kør følgende:
 
+
+
+
+kafka-topics --bootstrap-server localhost:9092 --topic LineageEvent --create --replication-factor 1
+
 kafka-console-consumer --topic LineageEvent --from-beginning --bootstrap-server localhost:9092
