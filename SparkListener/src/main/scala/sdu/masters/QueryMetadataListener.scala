@@ -45,7 +45,7 @@ class QueryMetadataListener extends QueryExecutionListener {
            |  "timestamp": "$timestamp",
            |  "duration": $durationMs,
            |  "inputPaths": $inputPathsJsonArray,
-           |  "outputPath": "$outputPath",
+           |  "outputPath": "$outputPath"
            |}""".stripMargin
 
       println(s"[LINEAGE] $lineageJson")

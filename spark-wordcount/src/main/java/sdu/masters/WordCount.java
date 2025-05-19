@@ -15,8 +15,8 @@ public class WordCount {
                 .appName("WordCount")
                 .getOrCreate();
         spark.conf().set("spark.custom.jobName", "WordCount");
-        spark.sparkContext().addSparkListener(new GlobalMetadataListener());
-        spark.listenerManager().register(new QueryMetadataListener());
+        //spark.sparkContext().addSparkListener(new GlobalMetadataListener());
+        //spark.listenerManager().register(new QueryMetadataListener());
 
         // ✅ Read as DataFrame and create temp view
         Dataset<String> lines = spark.read().textFile(args[0]);
