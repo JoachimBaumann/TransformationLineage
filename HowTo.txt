@@ -9,3 +9,8 @@ Vær sikker på at output pathen er unique (den ikke allerede er kørt med den o
 For at bekræfte at det er kørt gå ind i docker desktop -> Kafka -> CLI og kør følgende:
 
 kafka-console-consumer --topic LineageEvent --from-beginning --bootstrap-server localhost:9092
+
+For at køre vores spark job:
+gcloud dataproc jobs submit spark   --cluster=sparkcluster   --region=europe-west4   --class=sdu.masters.WordCount   --jars=gs://sparksbucket/scripts/spark-wordcount-1.0-SNAPSHOT.jar   -- gs://sparksbucket/input/input.txt gs://sparksbucket/output/
+
+-- gs..... er input, feltet efter er output.
