@@ -11,6 +11,10 @@ For at bekræfte at det er kørt gå ind i docker desktop -> Kafka -> CLI og kø
 
 
 
+
+
+// Kafka commands
+
 kafka-topics --bootstrap-server localhost:9092 --topic LineageEvent --create --replication-factor 1
 
 kafka-console-consumer --topic LineageEvent --from-beginning --bootstrap-server localhost:9092
