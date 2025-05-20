@@ -1,7 +1,7 @@
 package sdu.masters;
 
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.types.Node;
@@ -23,7 +23,7 @@ public class Neo4jLineageService implements AutoCloseable {
                 // Create or update output dataset node
                 tx.run(
                         "MERGE (out:Dataset {id: $outputPath})",
-                                //"SET out.format = $format",
+                        //"SET out.format = $format",
                         Map.of(
                                 "outputPath", record.outputPath
                                 //"format", record.datasetFormat
@@ -63,7 +63,7 @@ public class Neo4jLineageService implements AutoCloseable {
                 for (String inputPath : record.inputPaths) {
                     tx.run(
                             "MERGE (in:Dataset {id: $inputPath}) " +
-/*                                    "SET in.format = $format " +*/
+                                    /*                                    "SET in.format = $format " +*/
                                     "WITH in " +
                                     "MATCH (t:Transformation {id: $transformationId}) " +
                                     "MERGE (in)-[:INPUT_TO]->(t)",
@@ -81,8 +81,10 @@ public class Neo4jLineageService implements AutoCloseable {
     }
 
 
-    public List<String> traceLineageBackwards(String outputDatasetId) {
-        List<String> lineage = new ArrayList<>();
+    public String traceLineageBackwards(String outputDatasetId) throws Exception {
+        Set<String> nodeIds = new HashSet<>();
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        List<Map<String, Object>> edges = new ArrayList<>();
 
         try (Session session = driver.session()) {
             session.readTransaction(tx -> {
@@ -94,29 +96,64 @@ public class Neo4jLineageService implements AutoCloseable {
                         Values.parameters("id", outputDatasetId)
                 );
 
-                // To prevent duplicates while preserving order
-                Set<String> seen = new HashSet<>();
-
                 while (result.hasNext()) {
                     Record record = result.next();
                     Path path = record.get("p").asPath();
 
-                    for (org.neo4j.driver.types.Node node : path.nodes()) {
+                    for (Node node : path.nodes()) {
                         String label = node.labels().iterator().next();
-                        String representation;
+                        String id = String.valueOf(node.id());
 
-                        if ("Dataset".equals(label)) {
-                            representation = "Dataset: " + node.get("id").asString();
-                        } else if ("Transformation".equals(label)) {
-                            representation = "Transformation: " + node.get("name").asString() +
-                                    " (v" + node.get("version").asString() + ")";
-                        } else {
-                            continue;
-                        }
+                        if (nodeIds.add(id)) {
+                            Map<String, Object> reactNode = new HashMap<>();
+                            reactNode.put("id", id);
 
-                        if (seen.add(representation)) {
-                            lineage.add(representation);
+                            Map<String, Object> data = new HashMap<>();
+                            if ("Dataset".equals(label)) {
+                                reactNode.put("type", "dataset");
+                                String datasetId = node.get("id").asString();
+                                data.put("label", "Dataset: " + datasetId);
+                                data.put("id", datasetId);
+                            } else if ("Transformation".equals(label)) {
+                                reactNode.put("type", "transformation");
+                                String name = node.containsKey("name") ? node.get("name").asString() : "";
+                                String timestamp = node.containsKey("timestamp") ? node.get("timestamp").asString() : "";
+                                long duration = node.containsKey("duration") ? node.get("duration").asLong() : 0;
+                                String jobName = node.containsKey("jobName") ? node.get("jobName").asString() : "";
+
+                                data.put("label", "Transformation: " + name);
+                                data.put("name", name);
+                                data.put("timestamp", timestamp);
+                                data.put("duration", duration);
+                                data.put("jobName", jobName);
+                            }
+
+                            reactNode.put("data", data);
+                            reactNode.put("position", Map.of(
+                                    "x", Math.random() * 600,
+                                    "y", Math.random() * 400
+                            ));
+
+                            nodes.add(reactNode);
                         }
+                    }
+
+                    for (org.neo4j.driver.types.Relationship rel : path.relationships()) {
+                        String source = String.valueOf(rel.startNodeId());
+                        String target = String.valueOf(rel.endNodeId());
+                        String edgeId = "e" + source + "-" + target;
+
+                        Map<String, Object> edge = new HashMap<>();
+                        edge.put("id", edgeId);
+                        edge.put("source", source);
+                        edge.put("target", target);
+                        edge.put("type", "default");
+                        edge.put("label", rel.type());
+
+                        edge.put("animated", true);
+                        edge.put("markerEnd", Map.of("type", "arrowclosed"));
+
+                        edges.add(edge);
                     }
                 }
 
@@ -124,13 +161,14 @@ public class Neo4jLineageService implements AutoCloseable {
             });
         }
 
-        return lineage;
+        Map<String, Object> graph = Map.of(
+                "nodes", nodes,
+                "edges", edges
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(graph);
     }
-
-
-
-
-
 
     @Override
     public void close() {

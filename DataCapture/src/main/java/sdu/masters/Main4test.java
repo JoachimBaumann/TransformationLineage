@@ -13,36 +13,37 @@ public class Main4test {
             LineageRecord record3 = new LineageRecord();
             record3.transformationId = "3";
             record3.transformationName = "transformation 3";
-            record3.transformationVersion = "1.0";
-            record3.transformationType = "Spark";
             record3.timestamp = "2025-05-01T20:00:00Z";
+            record3.duration = 3000;
             record3.inputPaths = List.of("2ndOutput.txt");
-            record3.outputPath = "3ndOutput.txt";
-            record3.datasetFormat = "txt";
-
+            record3.outputPath = "3rdOutput.txt";
 
             LineageRecord record2 = new LineageRecord();
             record2.transformationId = "2";
             record2.transformationName = "transformation 2";
-            record2.transformationVersion = "1.0";
-            record2.transformationType = "Spark";
             record2.timestamp = "2025-05-01T20:00:00Z";
-            record2.inputPaths = List.of("1ndOutput.txt");
+            record2.duration = 2500;
+            record2.inputPaths = List.of("1stOutput.txt");
             record2.outputPath = "2ndOutput.txt";
-            record2.datasetFormat = "txt";
 
+            LineageRecord record1 = new LineageRecord();
+            record1.transformationId = "1";
+            record1.transformationName = "transformation 1";
+            record1.timestamp = "2025-05-01T20:00:00Z";
+            record1.duration = 2000;
+            record1.inputPaths = List.of("input.txt", "input2.txt");
+            record1.outputPath = "1stOutput.txt";
 
-            LineageRecord record = new LineageRecord();
-            record.transformationId = "1";
-            record.transformationName = "transformation 1";
-            record.transformationVersion = "1.0";
-            record.transformationType = "Spark";
-            record.timestamp = "2025-05-01T20:00:00Z";
-            record.inputPaths = List.of("input.txt", "input2.txt");
-            record.outputPath = "1ndOutput.txt";
-            record.datasetFormat = "txt";
-
-            lineageService.recordLineage(record);
+            // Record them in order
+            //  lineageService.recordLineage(record1);
+            //   lineageService.recordLineage(record2);
+               lineageService.recordLineage(record3);
+            String json = lineageService.traceLineageBackwards("3rdOutput.txt");
+            System.out.println(json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
+
     }
 }
