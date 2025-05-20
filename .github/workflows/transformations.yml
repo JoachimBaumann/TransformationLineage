@@ -1,9 +1,7 @@
-name: Build Spark Transformations
+name: Build Transformations
 
 on:
-  push:
-    paths:
-      - 'transformations/**'
+  workflow_dispatch:  # manual trigger from GitHub UI
 
 jobs:
   build:
@@ -19,35 +17,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Build only changed transformations
+      - name: Build all transformations
         run: |
-          changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u)
-          
-          if [ -z "$changed_dirs" ]; then
-            echo "No changes in transformation subdirectories."
-            exit 0
-          fi
-
-          for dir in $changed_dirs; do
-            pom_path="transformations/$dir/pom.xml"
-            if [ -f "$pom_path" ]; then
-              echo "Building $pom_path"
-              mvn -f "$pom_path" clean package
+          set -e
+          for dir in transformations/*/; do
+            if [ -f "$dir/pom.xml" ]; then
+              echo "Building $dir"
+              mvn -f "$dir/pom.xml" clean package
             else
-              echo "No pom.xml in $dir — skipping."
+              echo "Skipping $dir — no pom.xml"
             fi
           done
 
-      - name: Upload fat JARs
-        uses: actions/upload-artifact@v4
-        with:
-          name: fat-jars
-          path: transformations/**/target/*.jar
+      - name: List built JARs
+        run: find transformations -type f -name "*.jar"
