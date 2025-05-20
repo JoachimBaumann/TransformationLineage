@@ -4,8 +4,6 @@ on:
   push:
     paths:
       - 'transformations/**'
-    paths-ignore:
-      - 'packagedTransformations/**'
   workflow_dispatch:
     inputs:
       transformation:
