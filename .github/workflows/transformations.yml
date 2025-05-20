@@ -1,7 +1,7 @@
-name: Build Transformations
+name: Build and Package Changed Transformations
 
 on:
-  workflow_dispatch:  # manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,17 +17,32 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build all transformations
+      - name: Build only changed transformations
         run: |
           set -e
-          for dir in transformations/*/; do
-            if [ -f "$dir/pom.xml" ]; then
+
+          # Find changed transformation subdirectories
+          changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u)
+
+          if [ -z "$changed_dirs" ]; then
+            echo "No changed transformations detected."
+            exit 0
+          fi
+
+          mkdir -p packagedTransformations
+
+          for dir in $changed_dirs; do
+            pom_path="transformations/$dir/pom.xml"
+            if [ -f "$pom_path" ]; then
               echo "Building $dir"
-              mvn -f "$dir/pom.xml" clean package
+              mvn -f "$pom_path" clean package
+
+              echo "Copying resulting JARs from $dir"
+              find "transformations/$dir/target" -type f -name "*.jar" -exec cp {} packagedTransformations/ \;
             else
-              echo "Skipping $dir — no pom.xml"
+              echo "No pom.xml found in $dir — skipping."
             fi
           done
 
-      - name: List built JARs
-        run: find transformations -type f -name "*.jar"
+      - name: List packaged JARs
+        run: ls -lh packagedTransformations
