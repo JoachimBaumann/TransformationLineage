@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       transformation:
-        description: 'Name of the transformation to build (optional)'
+        description: 'Name of the transformation to build'
         required: true
         type: string
 
