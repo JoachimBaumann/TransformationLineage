@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'transformations/**'
+    paths-ignore:
+      - 'packagedTransformations/**'
   workflow_dispatch:
     inputs:
       transformation:
@@ -63,3 +65,26 @@ jobs:
 
       - name: List packaged JARs
         run: ls -lh packagedTransformations
+        
+      - name: Commit built JAR to the repo
+        run: |
+          name="${{ github.event.pusher.name }}"
+          email="${{ github.event.pusher.email }}"
+          [ -z "$name" ] && name="github-actions"
+          [ -z "$email" ] && email="github-actions@github.com"
+
+          git config user.name "$name"
+          git config user.email "$email"
+
+          git fetch origin
+          branch=$(echo "${GITHUB_REF#refs/heads/}")
+          git checkout "$branch"
+          git pull origin "$branch"
+
+          git add packagedTransformations/
+          if git diff --cached --quiet; then
+            echo "✅ No changes to commit."
+          else
+            git commit -m "📦 Add built JAR to packagedTransformations by ${{ github.actor }}"
+            git push origin "$branch"
+          fi
