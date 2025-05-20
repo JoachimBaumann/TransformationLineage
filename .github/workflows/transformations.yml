@@ -1,0 +1,65 @@
+name: Build and Package Transformations
+
+on:
+  push:
+    paths:
+      - 'transformations/**'
+  workflow_dispatch:
+    inputs:
+      transformation:
+        description: 'Name of the transformation to build'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Determine which transformation(s) to build
+        id: detect
+        run: |
+          set -e
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.transformation }}" ]; then
+            echo "manual_input=${{ github.event.inputs.transformation }}" >> $GITHUB_OUTPUT
+          else
+            changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u | xargs)
+            echo "auto_detected=$changed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build selected or changed transformations
+        run: |
+          set -e
+          mkdir -p packagedTransformations
+
+          if [ -n "${{ steps.detect.outputs.manual_input }}" ]; then
+            dirs="${{ steps.detect.outputs.manual_input }}"
+          elif [ -n "${{ steps.detect.outputs.auto_detected }}" ]; then
+            dirs="${{ steps.detect.outputs.auto_detected }}"
+          else
+            echo "No transformations to build."
+            exit 0
+          fi
+
+          for dir in $dirs; do
+            pom_path="transformations/$dir/pom.xml"
+            if [ -f "$pom_path" ]; then
+              echo "Building $dir"
+              mvn -f "$pom_path" clean package
+              find "transformations/$dir/target" -type f -name "*.jar" -exec cp {} packagedTransformations/ \;
+            else
+              echo "Skipping $dir — no pom.xml"
+            fi
+          done
+
+      - name: List packaged JARs
+        run: ls -lh packagedTransformations
