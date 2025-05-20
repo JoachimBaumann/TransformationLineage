@@ -1,7 +1,15 @@
-name: Build and Package Changed Transformations
+name: Build and Package Transformations
 
 on:
+  push:
+    paths:
+      - 'transformations/**'
   workflow_dispatch:
+    inputs:
+      transformation:
+        description: 'Name of the transformation to build (optional)'
+        required: true
+        type: string
 
 jobs:
   build:
@@ -17,30 +25,39 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build only changed transformations
+      - name: Determine which transformation(s) to build
+        id: detect
         run: |
           set -e
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.transformation }}" ]; then
+            echo "manual_input=${{ github.event.inputs.transformation }}" >> $GITHUB_OUTPUT
+          else
+            changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u | xargs)
+            echo "auto_detected=$changed" >> $GITHUB_OUTPUT
+          fi
 
-          # Find changed transformation subdirectories
-          changed_dirs=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u)
+      - name: Build selected or changed transformations
+        run: |
+          set -e
+          mkdir -p packagedTransformations
 
-          if [ -z "$changed_dirs" ]; then
-            echo "No changed transformations detected."
+          if [ -n "${{ steps.detect.outputs.manual_input }}" ]; then
+            dirs="${{ steps.detect.outputs.manual_input }}"
+          elif [ -n "${{ steps.detect.outputs.auto_detected }}" ]; then
+            dirs="${{ steps.detect.outputs.auto_detected }}"
+          else
+            echo "No transformations to build."
             exit 0
           fi
 
-          mkdir -p packagedTransformations
-
-          for dir in $changed_dirs; do
+          for dir in $dirs; do
             pom_path="transformations/$dir/pom.xml"
             if [ -f "$pom_path" ]; then
               echo "Building $dir"
               mvn -f "$pom_path" clean package
-
-              echo "Copying resulting JARs from $dir"
               find "transformations/$dir/target" -type f -name "*.jar" -exec cp {} packagedTransformations/ \;
             else
-              echo "No pom.xml found in $dir — skipping."
+              echo "Skipping $dir — no pom.xml"
             fi
           done
 
