@@ -31,10 +31,29 @@ jobs:
         id: detect
         run: |
           set -e
+          echo "Event: ${{ github.event_name }}"
+          echo "Before SHA: ${{ github.event.before }}"
+          echo "Current SHA: ${{ github.sha }}"
+
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.transformation }}" ]; then
             echo "manual_input=${{ github.event.inputs.transformation }}" >> $GITHUB_OUTPUT
           else
-            changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^transformations/' | cut -d/ -f2 | sort -u | xargs)
+            base_ref="${{ github.event.before }}"
+            [ -z "$base_ref" ] && base_ref="HEAD~1"
+            echo "Using base ref: $base_ref"
+
+            echo "Changed files:"
+            git diff --name-status "$base_ref" "${{ github.sha }}"
+
+            changed=$(git diff --name-status "$base_ref" "${{ github.sha }}" \
+              | grep -E '^(A|M|R)' \
+              | awk '{print $2}' \
+              | grep '^transformations/' \
+              | cut -d/ -f2 \
+              | sort -u \
+              | xargs)
+
+            echo "Detected changed dirs: $changed"
             echo "auto_detected=$changed" >> $GITHUB_OUTPUT
           fi
 
@@ -63,7 +82,7 @@ jobs:
 
               echo "Building $dir"
               mvn -f "$pom_path" clean package
-              
+
               find "transformations/$dir/target" -type f -name "*.jar" ! -name "original-*.jar" -exec cp {} packagedTransformations/ \;
 
             else
@@ -101,14 +120,14 @@ jobs:
           git add -f transformations/*.txt || true
 
           if git diff --cached --quiet; then
-            echo "✅ No changes to commit."
+            echo "No changes to commit."
           else
-            git commit -m "📦 Add built JARs and SHA info by ${{ github.actor }}"
+            git commit -m "Add built JARs and SHA info by ${{ github.actor }}"
             git push origin "$branch"
           fi
 
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.Service_accountAP }}'
 
