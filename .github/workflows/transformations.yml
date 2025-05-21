@@ -57,7 +57,7 @@ jobs:
             if [ -f "$pom_path" ]; then
               echo "Preparing $dir"
               mkdir -p "transformations/$dir/src/main/resources"
-              echo "git.commit.id=$sha" > "transformations/$dir/src/main/resources/git.properties"
+              echo "git.commit.id=$sha" > "transformations/$dir.txt"
 
               echo "Building $dir"
               mvn -f "$pom_path" clean package
