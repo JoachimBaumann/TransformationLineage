@@ -1,0 +1,27 @@
+.sidebar {
+  position: fixed;
+  top: 60px; /* below the topbar */
+  left: 0;
+  width: 200px;
+  height: calc(100% - 60px); /* full height minus topbar */
+  background-color: #222;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100; /* above the canvas */
+}
+
+.sidebar button {
+  background-color: #444;
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sidebar button:hover {
+  background-color: #555;
+}
