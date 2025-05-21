@@ -50,11 +50,18 @@ jobs:
             exit 0
           fi
 
+          sha=$(git rev-parse --short HEAD)
+
           for dir in $dirs; do
             pom_path="transformations/$dir/pom.xml"
             if [ -f "$pom_path" ]; then
+              echo "Preparing $dir"
+              mkdir -p "transformations/$dir/src/main/resources"
+              echo "git.commit.id=$sha" > "transformations/$dir/src/main/resources/git.properties"
+
               echo "Building $dir"
               mvn -f "$pom_path" clean package
+
               find "transformations/$dir/target" -type f -name "*.jar" -exec cp {} packagedTransformations/ \;
             else
               echo "Skipping $dir — no pom.xml"
@@ -63,7 +70,7 @@ jobs:
 
       - name: List packaged JARs
         run: ls -lh packagedTransformations
-        
+
       - name: Commit built JAR to the repo
         run: |
           name="${{ github.event.pusher.name }}"
