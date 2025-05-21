@@ -50,11 +50,18 @@ jobs:
             exit 0
           fi
 
+          sha=$(git rev-parse --short HEAD)
+
           for dir in $dirs; do
             pom_path="transformations/$dir/pom.xml"
             if [ -f "$pom_path" ]; then
+              echo "Preparing $dir"
+              mkdir -p "transformations/$dir/src/main/resources"
+              echo "git.commit.id=$sha" > "transformations/$dir/src/main/resources/git.properties"
+
               echo "Building $dir"
               mvn -f "$pom_path" clean package
+
               find "transformations/$dir/target" -type f -name "*.jar" -exec cp {} packagedTransformations/ \;
             else
               echo "Skipping $dir — no pom.xml"
@@ -63,3 +70,26 @@ jobs:
 
       - name: List packaged JARs
         run: ls -lh packagedTransformations
+
+      - name: Commit built JAR to the repo
+        run: |
+          name="${{ github.event.pusher.name }}"
+          email="${{ github.event.pusher.email }}"
+          [ -z "$name" ] && name="github-actions"
+          [ -z "$email" ] && email="github-actions@github.com"
+
+          git config user.name "$name"
+          git config user.email "$email"
+
+          git fetch origin
+          branch=$(echo "${GITHUB_REF#refs/heads/}")
+          git checkout "$branch"
+          git pull origin "$branch"
+
+          git add packagedTransformations/
+          if git diff --cached --quiet; then
+            echo "✅ No changes to commit."
+          else
+            git commit -m "📦 Add built JAR to packagedTransformations by ${{ github.actor }}"
+            git push origin "$branch"
+          fi
