@@ -93,3 +93,11 @@ jobs:
             git commit -m "📦 Add built JAR to packagedTransformations by ${{ github.actor }}"
             git push origin "$branch"
           fi
+
+      - name: Upload JARs to GCS
+        uses: google-github-actions/upload-cloud-storage@v1
+        with:
+          path: packagedTransformations/
+          destination: gs://your-bucket-name/
+          credentials: ${{ secrets.GCP_KEY }}
+
