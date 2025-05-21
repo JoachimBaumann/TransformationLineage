@@ -10,36 +10,106 @@ public class Main4test {
     public static void main(String[] args) {
         try (Neo4jLineageService lineageService = new Neo4jLineageService("bolt://localhost:7687", "neo4j", "ABCD123456abc")) {
 
-            LineageRecord record3 = new LineageRecord();
-            record3.transformationId = "3";
-            record3.transformationName = "transformation 3";
-            record3.timestamp = "2025-05-01T20:00:00Z";
-            record3.duration = 3000;
-            record3.inputPaths = List.of("2ndOutput.txt");
-            record3.outputPath = "3rdOutput.txt";
+            LineageRecord record1 = new LineageRecord();
+            record1.transformationId = "1";
+            record1.transformationName = "transformation 1";
+            record1.timestamp = "2025-05-01T20:10:00Z";
+            record1.duration = 3268;
+            record1.inputPaths = List.of("input1.txt", "input2.txt");
+            record1.outputPath = "output1.txt";
 
             LineageRecord record2 = new LineageRecord();
             record2.transformationId = "2";
             record2.transformationName = "transformation 2";
-            record2.timestamp = "2025-05-01T20:00:00Z";
-            record2.duration = 2500;
-            record2.inputPaths = List.of("1stOutput.txt");
-            record2.outputPath = "2ndOutput.txt";
+            record2.timestamp = "2025-05-01T20:20:00Z";
+            record2.duration = 2543;
+            record2.inputPaths = List.of("input3.txt");
+            record2.outputPath = "output2.txt";
 
-            LineageRecord record1 = new LineageRecord();
-            record1.transformationId = "1";
-            record1.transformationName = "transformation 1";
-            record1.timestamp = "2025-05-01T20:00:00Z";
-            record1.duration = 2000;
-            record1.inputPaths = List.of("input.txt", "input2.txt");
-            record1.outputPath = "1stOutput.txt";
+            LineageRecord record3 = new LineageRecord();
+            record3.transformationId = "3";
+            record3.transformationName = "transformation 3";
+            record3.timestamp = "2025-05-01T20:30:00Z";
+            record3.duration = 4923;
+            record3.inputPaths = List.of("input4.txt", "input5.txt");
+            record3.outputPath = "output3.txt";
 
-            // Record them in order
-            //  lineageService.recordLineage(record1);
-            //   lineageService.recordLineage(record2);
-               lineageService.recordLineage(record3);
-            String json = lineageService.traceLineageBackwards("3rdOutput.txt");
+            LineageRecord record4 = new LineageRecord();
+            record4.transformationId = "4";
+            record4.transformationName = "transformation 4";
+            record4.timestamp = "2025-05-01T20:40:00Z";
+            record4.duration = 1036;
+            record4.inputPaths = List.of("output1.txt");
+            record4.outputPath = "output4.txt";
+
+            LineageRecord record5 = new LineageRecord();
+            record5.transformationId = "5";
+            record5.transformationName = "transformation 5";
+            record5.timestamp = "2025-05-01T20:50:00Z";
+            record5.duration = 2125;
+            record5.inputPaths = List.of("output2.txt", "output3.txt");
+            record5.outputPath = "output5.txt";
+
+            LineageRecord record6 = new LineageRecord();
+            record6.transformationId = "6";
+            record6.transformationName = "transformation 6";
+            record6.timestamp = "2025-05-01T21:00:00Z";
+            record6.duration = 3590;
+            record6.inputPaths = List.of("output2.txt");
+            record6.outputPath = "output6.txt";
+
+            LineageRecord record7 = new LineageRecord();
+            record7.transformationId = "7";
+            record7.transformationName = "transformation 7";
+            record7.timestamp = "2025-05-01T21:10:00Z";
+            record7.duration = 1116;
+            record7.inputPaths = List.of("output4.txt");
+            record7.outputPath = "output7.txt";
+
+            LineageRecord record8 = new LineageRecord();
+            record8.transformationId = "8";
+            record8.transformationName = "transformation 8";
+            record8.timestamp = "2025-05-01T21:20:00Z";
+            record8.duration = 3159;
+            record8.inputPaths = List.of("output5.txt", "output6.txt");
+            record8.outputPath = "output8.txt";
+
+            LineageRecord record9 = new LineageRecord();
+            record9.transformationId = "9";
+            record9.transformationName = "transformation 9";
+            record9.timestamp = "2025-05-01T21:30:00Z";
+            record9.duration = 2901;
+            record9.inputPaths = List.of("output6.txt");
+            record9.outputPath = "output9.txt";
+
+            LineageRecord record10 = new LineageRecord();
+            record10.transformationId = "10";
+            record10.transformationName = "transformation 10";
+            record10.timestamp = "2025-05-01T21:40:00Z";
+            record10.duration = 1925;
+            record10.inputPaths = List.of("output7.txt", "output8.txt", "output9.txt");
+            record10.outputPath = "output10.txt";
+
+
+/*            // Record them in order
+            lineageService.recordLineage(record1);
+            lineageService.recordLineage(record2);
+            lineageService.recordLineage(record3);
+            lineageService.recordLineage(record4);
+            lineageService.recordLineage(record5);
+            lineageService.recordLineage(record6);
+            lineageService.recordLineage(record7);
+            lineageService.recordLineage(record8);
+            lineageService.recordLineage(record9);
+            lineageService.recordLineage(record10);
+
+ */
+
+
+            String json = lineageService.getAllLineageData();
             System.out.println(json);
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
