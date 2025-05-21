@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depths: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
