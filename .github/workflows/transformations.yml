@@ -72,7 +72,15 @@ jobs:
       - name: List packaged JARs
         run: ls -lh packagedTransformations
 
-      - name: Commit built JAR to the repo
+      - name: Debug files
+        run: |
+          echo "Listing .txt files:"
+          ls -l transformations/*.txt || true
+
+          echo "Git status:"
+          git status
+
+      - name: Commit built JARs and SHA info to the repo
         run: |
           name="${{ github.event.pusher.name }}"
           email="${{ github.event.pusher.email }}"
@@ -88,11 +96,12 @@ jobs:
           git pull origin "$branch"
 
           git add packagedTransformations/
-          git add transformations/*.txt
+          git add -f transformations/*.txt || true
+
           if git diff --cached --quiet; then
             echo "✅ No changes to commit."
           else
-            git commit -m "📦 Add built JAR to packagedTransformations by ${{ github.actor }}"
+            git commit -m "📦 Add built JARs and SHA info by ${{ github.actor }}"
             git push origin "$branch"
           fi
 
@@ -100,12 +109,9 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.Service_accountAP }}'
-      
-
 
       - name: Upload JARs to GCS
         uses: google-github-actions/upload-cloud-storage@v1
         with:
           path: packagedTransformations/
           destination: sparksbucket/transformations/
-
