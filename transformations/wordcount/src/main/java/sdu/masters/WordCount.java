@@ -9,6 +9,7 @@ public class WordCount {
         if (args.length < 2) {
             System.err.println("Usage: WordCount <input_file> <output_directory>");
             System.exit(1);
+
         }
 
         SparkSession spark = SparkSession.builder()
