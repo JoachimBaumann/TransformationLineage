@@ -21,7 +21,7 @@ class QueryMetadataListener extends QueryExecutionListener {
     val jobName = spark.conf.get("spark.custom.jobName", "UnknownJob")
 
     val bucket = "sparksbucket" // change this to your actual bucket
-    val shaFilename = s"$jobName.sha"
+    val shaFilename = s"$jobName.txt"
 
     val storage = StorageOptions.getDefaultInstance.getService
     val blob = storage.get(BlobId.of(bucket, shaFilename))
