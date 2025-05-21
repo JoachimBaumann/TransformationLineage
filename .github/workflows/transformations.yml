@@ -78,7 +78,10 @@ jobs:
             if [ -f "$pom_path" ]; then
               echo "Preparing $dir"
               mkdir -p "transformations/$dir/src/main/resources"
-              echo "git.commit.id=$sha" > "transformations/$dir.txt"
+
+              txt_file="transformations/$dir.txt"
+              echo "git.commit.id=$sha" > "$txt_file"
+              cp "$txt_file" packagedTransformations/
 
               echo "Building $dir"
               mvn -f "$pom_path" clean package
@@ -90,7 +93,7 @@ jobs:
             fi
           done
 
-      - name: List packaged JARs
+      - name: List packaged files
         run: ls -lh packagedTransformations
 
       - name: Debug files
@@ -131,7 +134,7 @@ jobs:
         with:
           credentials_json: '${{ secrets.Service_accountAP }}'
 
-      - name: Upload JARs to GCS
+      - name: Upload JARs and SHA info to GCS
         uses: google-github-actions/upload-cloud-storage@v1
         with:
           path: packagedTransformations/
