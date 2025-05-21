@@ -5,7 +5,10 @@ import org.apache.spark.sql.execution.QueryExecution
 import org.apache.spark.sql.util.QueryExecutionListener
 import org.apache.spark.sql.execution.datasources._
 import org.apache.spark.sql.execution.FileSourceScanExec
+import com.google.cloud.storage.{BlobId, StorageOptions}
 
+import java.nio.channels.Channels
+import java.io.{BufferedReader, InputStreamReader}
 import java.util.UUID
 import java.time.Instant
 
@@ -16,6 +19,22 @@ class QueryMetadataListener extends QueryExecutionListener {
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     val spark = SparkSession.active
     val jobName = spark.conf.get("spark.custom.jobName", "UnknownJob")
+
+    val bucket = "your-bucket-name" // change this to your actual bucket
+    val shaFilename = s"$jobName.sha"
+
+    val storage = StorageOptions.getDefaultInstance.getService
+    val blob = storage.get(BlobId.of(bucket, shaFilename))
+
+    val gitSha = if (blob != null) {
+      val reader = new BufferedReader(new InputStreamReader(Channels.newInputStream(blob.reader())))
+      val line = reader.readLine()
+      reader.close()
+      if (line != null && line.startsWith("git.commit.id=")) line.split("=")(1).trim else "unknown"
+    } else {
+      "unknown"
+    }
+
     val durationMs = durationNs / 1000000
 
 
@@ -36,7 +55,6 @@ class QueryMetadataListener extends QueryExecutionListener {
       val transformationName = jobName
       val timestamp = Instant.now().toString
 
-      val inputPathsJsonArray = inputPathsList.map(p => s""""$p"""").mkString("[", ", ", "]")
 
       val lineageJson =
         s"""{
@@ -45,7 +63,8 @@ class QueryMetadataListener extends QueryExecutionListener {
            |  "timestamp": "$timestamp",
            |  "duration": $durationMs,
            |  "inputPaths": $inputPathsJsonArray,
-           |  "outputPath": "$outputPath"
+           |  "outputPath": "$outputPath",
+           |  "gitSha": "$gitSha"
            |}""".stripMargin
 
       println(s"[LINEAGE] $lineageJson")
