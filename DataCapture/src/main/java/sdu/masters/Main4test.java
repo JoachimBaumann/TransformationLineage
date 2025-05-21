@@ -106,7 +106,7 @@ public class Main4test {
  */
 
 
-            String json = lineageService.getAllLineageData();
+            String json = lineageService.traceLineageBackwards("output5.txt");
             System.out.println(json);
 
 
