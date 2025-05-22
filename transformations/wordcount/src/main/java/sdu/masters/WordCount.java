@@ -14,7 +14,7 @@ public class WordCount {
         SparkSession spark = SparkSession.builder()
                 .appName("WordCount")
                 .getOrCreate();
-        spark.conf().set("spark.custom.jobName", "WordCount");
+        spark.conf().set("spark.custom.jobName", "wordcount");
         //spark.sparkContext().addSparkListener(new GlobalMetadataListener());
         //spark.listenerManager().register(new QueryMetadataListener());
 

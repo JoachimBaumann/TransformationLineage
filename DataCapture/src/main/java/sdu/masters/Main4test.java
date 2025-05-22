@@ -91,7 +91,7 @@ public class Main4test {
             record10.outputPath = "output10.txt";
 
 
-/*            // Record them in order
+            // Record them in order
             lineageService.recordLineage(record1);
             lineageService.recordLineage(record2);
             lineageService.recordLineage(record3);
@@ -103,11 +103,9 @@ public class Main4test {
             lineageService.recordLineage(record9);
             lineageService.recordLineage(record10);
 
- */
 
-
-            String json = lineageService.traceLineageBackwards("output5.txt");
-            System.out.println(json);
+            //   String json = lineageService.traceLineageBackwards("output5.txt");
+            //   System.out.println(json);
 
 
         } catch (Exception e) {

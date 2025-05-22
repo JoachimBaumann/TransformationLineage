@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 
 # Copy your prebuilt JAR from local filesystem into image
-COPY target/*shaded.jar app.jar
+COPY target/*.jar app.jar
 
 # Run it
 ENTRYPOINT ["java", "-jar", "app.jar"]
