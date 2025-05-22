@@ -8,6 +8,7 @@ public class WordCount {
     public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: WordCount <input_file> <output_directory>");
+            System.err.println("redundant message here");
             System.exit(1);
         }
 
