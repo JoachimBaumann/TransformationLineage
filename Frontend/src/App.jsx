@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import GraphViewer from './components/GraphViewer';
-import TopBar from './components/TopBar';
+import TopBar from './components/Topbar';
 import Sidebar from './components/Sidebar';
 import { layoutGraph } from './utils/layoutGraph';
 import './App.css';
@@ -12,7 +12,7 @@ function App() {
 
   // Load full graph on startup
   useEffect(() => {
-    fetch('http://localhost:8080/api/lineage/all')
+    fetch('http://joachimbaumann.dk:8080/api/lineage/all')
       .then(res => res.json())
       .then(data => {
         setRawData(data);
@@ -32,7 +32,7 @@ function App() {
       const direction = traceMode === 'backward' ? 'backwards' : 'forwards';
       const id = node.data?.id || node.id;
 
-      fetch(`http://localhost:8080/api/lineage/${direction}/${id}`)
+      fetch(`http://joachimbaumann.dk:8080/api/lineage/${direction}/${id}`)
         .then(res => res.json())
         .then(data => {
           setRawData(data);
@@ -51,7 +51,7 @@ function App() {
   const handleTrace = (mode) => {
     if (mode === 'all') {
       setTraceMode(null);
-      fetch('http://localhost:8080/api/lineage/all')
+      fetch('http://joachimbaumann.dk:8080/api/lineage/all')
         .then(res => res.json())
         .then(data => {
           setRawData(data);
