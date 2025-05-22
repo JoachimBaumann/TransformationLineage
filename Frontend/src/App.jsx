@@ -104,6 +104,7 @@ function App() {
                   <p><strong>Name:</strong> {selectedNode.data.name}</p>
                   <p><strong>Timestamp:</strong> {selectedNode.data.timestamp}</p>
                   <p><strong>Duration:</strong> {selectedNode.data.duration} ms</p>
+                  <p><strong>Git Version:</strong> {selectedNode.data.gitSha}</p>
                 </>
               )}
 
