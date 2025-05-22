@@ -1,17 +1,17 @@
-# Use an official Nginx image
+# Stage 1: Build the React app
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Remove default config (optional, only needed if customizing nginx.conf)
-# RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy build folder into Nginx html directory
-COPY ./dist /usr/share/nginx/html
-
-# Optionally copy a custom nginx.conf if needed for routing
+# Optional: Use a custom nginx.conf (uncomment if needed)
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

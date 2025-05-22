@@ -9,7 +9,15 @@ import org.springframework.context.annotation.Bean;
 public class CaptureMain {
 
     private final AppConfig config = new AppConfig();
-    private Neo4jLineageService lineageService;
+    private final Neo4jLineageService lineageService;
+
+    public CaptureMain() {
+        this.lineageService = new Neo4jLineageService(
+                config.neo4jUri,
+                config.neo4jUser,
+                config.neo4jPassword
+        );
+    }
 
     public static void main(String[] args) {
         System.out.println("Starting Spring Boot application with REST API and Kafka consumer...");
@@ -18,11 +26,6 @@ public class CaptureMain {
 
     @Bean
     public Neo4jLineageService lineageService() {
-        this.lineageService = new Neo4jLineageService(
-                config.neo4jUri,
-                config.neo4jUser,
-                config.neo4jPassword
-        );
         return this.lineageService;
     }
 
@@ -34,10 +37,10 @@ public class CaptureMain {
                         config.kafkaBootstrapServers,
                         config.kafkaTopic,
                         config.kafkaGroupId,
-                        lineageService
+                        lineageService // now this will be non-null
                 );
                 Runtime.getRuntime().addShutdownHook(new Thread(consumer::close));
-                consumer.pollAndProcess(); // blocking call in background thread
+                consumer.pollAndProcess();
             } catch (Exception e) {
                 e.printStackTrace();
             }
