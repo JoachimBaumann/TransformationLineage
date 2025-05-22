@@ -144,3 +144,4 @@ jobs:
         with:
           path: packagedTransformations/
           destination: sparksbucket/transformations/
+          gzip: false
