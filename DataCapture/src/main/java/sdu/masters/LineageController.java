@@ -2,7 +2,7 @@ package sdu.masters;
 
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("joachimbaumann.dk:3000")
+@CrossOrigin(origins = "http://joachimbaumann.dk:3000")
 @RestController
 @RequestMapping("/api/lineage")
 public class LineageController {
