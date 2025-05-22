@@ -105,7 +105,18 @@ function App() {
                   <p><strong>Timestamp:</strong> {selectedNode.data.timestamp}</p>
                   <p><strong>Duration:</strong> {selectedNode.data.duration} ms</p>
                   <p><strong>Git Version:</strong> {selectedNode.data.gitSha}</p>
-                </>
+                    <p>
+      <strong>Inspect Code:</strong>{' '}
+      <a
+        href={`https://github.com/JoachimBaumann/TransformationLineage/tree/${selectedNode.data.gitSha}/transformations/${selectedNode.data.name}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: '#4ea1d3', textDecoration: 'underline' }}
+      >
+        View on GitHub
+      </a>
+    </p>
+  </>
               )}
 
               {selectedNode.type === 'dataset' && (
