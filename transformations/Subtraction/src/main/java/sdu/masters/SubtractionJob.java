@@ -14,7 +14,7 @@ public class SubtractionJob {
         input2.createOrReplaceTempView("input2");
 
         Dataset<Row> result = spark.sql(
-                "SELECT CAST(a.value1 AS DOUBLE) * CAST(b.value2 AS DOUBLE) AS result " +
+                "SELECT CAST(a.value1 AS DOUBLE) - CAST(b.value2 AS DOUBLE) AS result " +
                         "FROM input1 a CROSS JOIN input2 b"
         );
 
