@@ -31,8 +31,8 @@ function App() {
     if (traceMode === 'backward' || traceMode === 'forward') {
       const direction = traceMode === 'backward' ? 'backwards' : 'forwards';
       const id = node.data?.id || node.id;
-
-      fetch(`http://joachimbaumann.dk:8080/api/lineage/${direction}/${id}`)
+      const encodedId = encodeURIComponent(id);
+      fetch(`http://joachimbaumann.dk:8080/api/lineage/${direction}/${encodedId}`)
         .then(res => res.json())
         .then(data => {
         console.log(`Fetched ${direction} trace from ${id}:`, data); // 👈 Add this line
