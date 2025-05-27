@@ -5,6 +5,7 @@ import org.apache.spark.sql.*;
 public class MultiplicationJob {
     public static void main(String[] args) {
         SparkSession spark = SparkSession.builder().appName("MultiplicationJob").getOrCreate();
+        spark.conf().set("spark.custom.jobName", "Multiplication");
 
         Dataset<Row> input1 = spark.read().text(args[0]).withColumnRenamed("value", "value1");
         Dataset<Row> input2 = spark.read().text(args[1]).withColumnRenamed("value", "value2");
