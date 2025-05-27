@@ -24,10 +24,13 @@ public class AdditionJob {
                         "FROM input1 a CROSS JOIN input2 b"
         );
 
-        result.write()
+        // Save only the result number as a .txt file (e.g., part-00000)
+        result.selectExpr("CAST(result AS STRING)")
+                .coalesce(1) // optional: force single output file
+                .write()
                 .mode(SaveMode.Overwrite)
-                .option("header", "true")
-                .csv(args[2]);
+                .text(args[2]);
+
 
         spark.stop();
     }
