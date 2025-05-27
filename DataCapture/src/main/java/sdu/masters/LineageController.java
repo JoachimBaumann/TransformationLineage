@@ -14,15 +14,14 @@ public class LineageController {
 
 
 
-    @GetMapping("/backwards/{datasetId}")
-    public String traceBackwards(@PathVariable(name = "datasetId") String datasetId) throws Exception {
-        return lineageService.traceLineageBackwards(datasetId);
+    @GetMapping("/forwards")
+    public String traceForwards(@RequestParam("datasetId") String datasetId) throws Exception {
+        return lineageService.traceLineageForward(datasetId);
     }
 
-
-    @GetMapping("/forwards/{datasetId}")
-    public String traceForwards(@PathVariable(name = "datasetId") String datasetId) throws Exception {
-        return lineageService.traceLineageForward(datasetId);
+    @GetMapping("/backwards")
+    public String traceBackwards(@RequestParam("datasetId") String datasetId) throws Exception {
+        return lineageService.traceLineageBackwards(datasetId);
     }
 
 
