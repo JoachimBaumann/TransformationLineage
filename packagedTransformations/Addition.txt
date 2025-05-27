@@ -1,1 +1,1 @@
-git.commit.id=a659acf
+git.commit.id=70a27d9
