@@ -8,7 +8,7 @@ import java.util.List;
 public class Main4test {
 
     public static void main(String[] args) {
-        try (Neo4jLineageService lineageService = new Neo4jLineageService("bolt://localhost:7687", "neo4j", "ABCD123456abc")) {
+        try (Neo4jLineageService lineageService = new Neo4jLineageService("bolt://joachimbaumann.dk:7687", "neo4j", "ABCD123456abc")) {
 
             LineageRecord record1 = new LineageRecord();
             record1.transformationId = "1";
@@ -17,6 +17,7 @@ public class Main4test {
             record1.duration = 3268;
             record1.inputPaths = List.of("input1.txt", "input2.txt");
             record1.outputPath = "output1.txt";
+            record1.gitSha = "a56ab";
 
             LineageRecord record2 = new LineageRecord();
             record2.transformationId = "2";
@@ -25,6 +26,7 @@ public class Main4test {
             record2.duration = 2543;
             record2.inputPaths = List.of("input3.txt");
             record2.outputPath = "output2.txt";
+            record2.gitSha = "a56ab";
 
             LineageRecord record3 = new LineageRecord();
             record3.transformationId = "3";
@@ -33,6 +35,7 @@ public class Main4test {
             record3.duration = 4923;
             record3.inputPaths = List.of("input4.txt", "input5.txt");
             record3.outputPath = "output3.txt";
+            record3.gitSha = "a56ab";
 
             LineageRecord record4 = new LineageRecord();
             record4.transformationId = "4";
@@ -41,6 +44,7 @@ public class Main4test {
             record4.duration = 1036;
             record4.inputPaths = List.of("output1.txt");
             record4.outputPath = "output4.txt";
+            record4.gitSha = "a56ab";
 
             LineageRecord record5 = new LineageRecord();
             record5.transformationId = "5";
@@ -49,6 +53,7 @@ public class Main4test {
             record5.duration = 2125;
             record5.inputPaths = List.of("output2.txt", "output3.txt");
             record5.outputPath = "output5.txt";
+            record5.gitSha = "a56ab";
 
             LineageRecord record6 = new LineageRecord();
             record6.transformationId = "6";
@@ -57,6 +62,7 @@ public class Main4test {
             record6.duration = 3590;
             record6.inputPaths = List.of("output2.txt");
             record6.outputPath = "output6.txt";
+            record6.gitSha = "a56ab";
 
             LineageRecord record7 = new LineageRecord();
             record7.transformationId = "7";
@@ -65,6 +71,7 @@ public class Main4test {
             record7.duration = 1116;
             record7.inputPaths = List.of("output4.txt");
             record7.outputPath = "output7.txt";
+            record7.gitSha = "a56ab";
 
             LineageRecord record8 = new LineageRecord();
             record8.transformationId = "8";
@@ -73,6 +80,7 @@ public class Main4test {
             record8.duration = 3159;
             record8.inputPaths = List.of("output5.txt", "output6.txt");
             record8.outputPath = "output8.txt";
+            record8.gitSha = "a56ab";
 
             LineageRecord record9 = new LineageRecord();
             record9.transformationId = "9";
@@ -81,6 +89,7 @@ public class Main4test {
             record9.duration = 2901;
             record9.inputPaths = List.of("output6.txt");
             record9.outputPath = "output9.txt";
+            record9.gitSha = "a56ab";
 
             LineageRecord record10 = new LineageRecord();
             record10.transformationId = "10";
@@ -89,11 +98,11 @@ public class Main4test {
             record10.duration = 1925;
             record10.inputPaths = List.of("output7.txt", "output8.txt", "output9.txt");
             record10.outputPath = "output10.txt";
-
+            record10.gitSha = "a56ab";
 
             // Record them in order
             lineageService.recordLineage(record1);
-            lineageService.recordLineage(record2);
+     /*       lineageService.recordLineage(record2);
             lineageService.recordLineage(record3);
             lineageService.recordLineage(record4);
             lineageService.recordLineage(record5);
@@ -102,6 +111,8 @@ public class Main4test {
             lineageService.recordLineage(record8);
             lineageService.recordLineage(record9);
             lineageService.recordLineage(record10);
+
+      */
 
 
             //   String json = lineageService.traceLineageBackwards("output5.txt");

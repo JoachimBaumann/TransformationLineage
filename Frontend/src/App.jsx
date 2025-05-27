@@ -35,6 +35,7 @@ function App() {
       fetch(`http://joachimbaumann.dk:8080/api/lineage/${direction}/${id}`)
         .then(res => res.json())
         .then(data => {
+        console.log(`Fetched ${direction} trace from ${id}:`, data); // 👈 Add this line
           setRawData(data);
           setSelectedNode(null);
         })
