@@ -5,6 +5,7 @@ import org.apache.spark.sql.*;
 public class AdditionJob {
     public static void main(String[] args) {
         SparkSession spark = SparkSession.builder().appName("Addition").getOrCreate();
+        spark.conf().set("spark.custom.jobName", "Addition");
 
         // Read single-value .txt files from GCS
         Dataset<Row> input1 = spark.read()
