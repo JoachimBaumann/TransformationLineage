@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import GraphViewer from './components/GraphViewer';
-import TopBar from './components/TopBar';
+import TopBar from './components/Topbar';
 import Sidebar from './components/Sidebar';
 import { layoutGraph } from './utils/layoutGraph';
 import './App.css';
@@ -12,7 +12,7 @@ function App() {
 
   // Load full graph on startup
   useEffect(() => {
-    fetch('http://localhost:8080/api/lineage/all')
+    fetch('http://joachimbaumann.dk:8080/api/lineage/all')
       .then(res => res.json())
       .then(data => {
         setRawData(data);
@@ -31,10 +31,11 @@ function App() {
     if (traceMode === 'backward' || traceMode === 'forward') {
       const direction = traceMode === 'backward' ? 'backwards' : 'forwards';
       const id = node.data?.id || node.id;
-
-      fetch(`http://localhost:8080/api/lineage/${direction}/${id}`)
+      const encodedId = encodeURIComponent(id);
+fetch(`http://joachimbaumann.dk:8080/api/lineage/${direction}?datasetId=${encodedId}`)
         .then(res => res.json())
         .then(data => {
+        console.log(`Fetched ${direction} trace from ${id}:`, data); // 👈 Add this line
           setRawData(data);
           setSelectedNode(null);
         })
@@ -51,7 +52,7 @@ function App() {
   const handleTrace = (mode) => {
     if (mode === 'all') {
       setTraceMode(null);
-      fetch('http://localhost:8080/api/lineage/all')
+      fetch('http://joachimbaumann.dk:8080/api/lineage/all')
         .then(res => res.json())
         .then(data => {
           setRawData(data);
@@ -104,7 +105,19 @@ function App() {
                   <p><strong>Name:</strong> {selectedNode.data.name}</p>
                   <p><strong>Timestamp:</strong> {selectedNode.data.timestamp}</p>
                   <p><strong>Duration:</strong> {selectedNode.data.duration} ms</p>
-                </>
+                  <p><strong>Git Version:</strong> {selectedNode.data.gitSha}</p>
+                    <p>
+      <strong>Inspect Code:</strong>{' '}
+      <a
+        href={`https://github.com/JoachimBaumann/TransformationLineage/tree/${selectedNode.data.gitSha}/transformations/${selectedNode.data.name}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: '#4ea1d3', textDecoration: 'underline' }}
+      >
+        View on GitHub
+      </a>
+    </p>
+  </>
               )}
 
               {selectedNode.type === 'dataset' && (

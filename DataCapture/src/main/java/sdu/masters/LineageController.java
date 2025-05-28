@@ -13,19 +13,18 @@ public class LineageController {
     }
 
 
-    @CrossOrigin("*")
-    @GetMapping("/backwards/{datasetId}")
-    public String traceBackwards(@PathVariable(name = "datasetId") String datasetId) throws Exception {
-        return lineageService.traceLineageBackwards(datasetId);
-    }
 
-    @CrossOrigin("*")
-    @GetMapping("/forwards/{datasetId}")
-    public String traceForwards(@PathVariable(name = "datasetId") String datasetId) throws Exception {
+    @GetMapping("/forwards")
+    public String traceForwards(@RequestParam("datasetId") String datasetId) throws Exception {
         return lineageService.traceLineageForward(datasetId);
     }
 
-    @CrossOrigin("*")
+    @GetMapping("/backwards")
+    public String traceBackwards(@RequestParam("datasetId") String datasetId) throws Exception {
+        return lineageService.traceLineageBackwards(datasetId);
+    }
+
+
     @GetMapping("/all")
     public String getAllLineage() throws Exception {
         return lineageService.getAllLineageData();

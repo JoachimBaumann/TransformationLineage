@@ -26,13 +26,15 @@ public class Neo4jLineageService implements AutoCloseable {
                         Map.of("outputPath", record.outputPath));
 
                 tx.run("MERGE (t:Transformation {id: $transformationId}) " +
-                                "SET t.name = $name, t.timestamp = $timestamp, t.duration = $duration",
+                                "SET t.name = $name, t.timestamp = $timestamp, t.duration = $duration, t.gitSha = $gitSha",
                         Map.of(
                                 "transformationId", record.transformationId,
                                 "name", record.transformationName,
                                 "timestamp", record.timestamp,
-                                "duration", record.duration
+                                "duration", record.duration,
+                                "gitSha", record.gitSha
                         ));
+
 
                 tx.run("MATCH (t:Transformation {id: $transformationId}), " +
                                 "(out:Dataset {id: $outputPath}) " +
@@ -127,12 +129,16 @@ public class Neo4jLineageService implements AutoCloseable {
                         String timestamp = node.containsKey("timestamp") ? node.get("timestamp").asString() : "";
                         long duration = node.containsKey("duration") ? node.get("duration").asLong() : 0;
                         String jobName = node.containsKey("jobName") ? node.get("jobName").asString() : "";
+                        String gitSha = node.containsKey("gitSha") ? node.get("gitSha").asString() : "";
+
 
                         data.put("name", name);
                         data.put("timestamp", timestamp);
                         data.put("duration", duration);
                         data.put("jobName", jobName);
                         data.put("label", "Transformation: " + name);
+                        data.put("gitSha", gitSha);
+
                     }
                     reactNode.put("data", data);
                     reactNode.put("position", Map.of("x", Math.random() * 600, "y", Math.random() * 400));

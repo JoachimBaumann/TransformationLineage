@@ -10,5 +10,6 @@ public class LineageRecord {
     public long duration;
     public List<String> inputPaths;    // multiple allowed
     public String outputPath;
+    public String gitSha;
 
 }
