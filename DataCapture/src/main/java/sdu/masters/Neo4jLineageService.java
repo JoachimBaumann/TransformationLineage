@@ -5,6 +5,8 @@ import org.neo4j.driver.*;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class Neo4jLineageService implements AutoCloseable {
@@ -16,6 +18,8 @@ public class Neo4jLineageService implements AutoCloseable {
     }
 
     public void recordLineage(LineageRecord record) {
+        Instant sentTime = Instant.parse(record.timestamp);
+
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> {
                 tx.run("MERGE (out:Dataset {id: $outputPath})",
@@ -52,6 +56,10 @@ public class Neo4jLineageService implements AutoCloseable {
                 return null;
             });
         }
+        // Measure delay AFTER saving
+        Instant savedTime = Instant.now();
+        long delayMillis = Duration.between(sentTime, savedTime).toMillis();
+        System.out.println("[TIME-FROM-SPARK TO NEO4J] - ⏱ Post-save delay: " + delayMillis + " ms" + " (" + sentTime + " -> " + savedTime + ")" );
     }
 
     public String traceLineageBackwards(String outputDatasetId) throws Exception {
