@@ -28,7 +28,7 @@ public class WordCount {
 
         Dataset<Row> counts = words.groupBy("word").count().orderBy(functions.desc("count"));
 
-        counts.write().format("csv").save(args[1]);
+        counts.write().format("txt").save(args[1]);
 
         spark.stop();
     }
