@@ -12,6 +12,8 @@ services:
     restart: always
   lineage-service:
     build: .
+    deploy:
+      replicas: 3
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "joachimbaumann.dk:9092"
       KAFKA_TOPIC: "lineageEvent"

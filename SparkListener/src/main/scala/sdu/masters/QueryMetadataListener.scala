@@ -12,9 +12,32 @@ import java.io.{BufferedReader, InputStreamReader}
 import java.util.UUID
 import java.time.Instant
 
+import org.everit.json.schema.Schema
+import org.everit.json.schema.loader.SchemaLoader
+import org.json.JSONObject
+
 class QueryMetadataListener extends QueryExecutionListener {
 
   private val producer = new KafkaLineageProducer("joachimbaumann.dk:9092", "LineageEvent")
+
+  private val schemaJson: String =
+    """
+      |{
+      |  "type": "object",
+      |  "required": ["transformationId", "transformationName", "timestamp", "duration", "inputPaths", "outputPath", "gitSha"],
+      |  "properties": {
+      |    "transformationId": {"type": "string"},
+      |    "transformationName": {"type": "string"},
+      |    "timestamp": {"type": "string"},
+      |    "duration": {"type": "number"},
+      |    "inputPaths": {"type": "array", "items": {"type": "string"}},
+      |    "outputPath": {"type": "string"},
+      |    "gitSha": {"type": "string"}
+      |  }
+      |}
+    """.stripMargin
+
+  private val schema: Schema = SchemaLoader.load(new JSONObject(schemaJson))
 
   override def onSuccess(funcName: String, qe: QueryExecution, durationNs: Long): Unit = {
     val spark = SparkSession.active
@@ -37,7 +60,6 @@ class QueryMetadataListener extends QueryExecutionListener {
 
     val durationMs = durationNs / 1000000
 
-
     val inputPathsList = qe.sparkPlan.collect {
       case fs: FileSourceScanExec => fs.relation.location.rootPaths.map(_.toString)
     }.flatten.distinct
@@ -55,7 +77,6 @@ class QueryMetadataListener extends QueryExecutionListener {
       val transformationName = jobName
       val timestamp = Instant.now().toString
 
-
       val lineageJson =
         s"""{
            |  "transformationId": "$transformationId",
@@ -67,8 +88,15 @@ class QueryMetadataListener extends QueryExecutionListener {
            |  "gitSha": "$gitSha"
            |}""".stripMargin
 
-      println(s"[LINEAGE] $lineageJson")
-      producer.sendEvent(lineageJson)
+      try {
+        val jsonObject = new JSONObject(lineageJson)
+        schema.validate(jsonObject) // Validate against JSON Schema
+        println(s"[LINEAGE] $lineageJson")
+        producer.sendEvent(lineageJson)
+      } catch {
+        case e: Exception =>
+          println(s"[VALIDATION FAILED] Schema error: ${e.getMessage}")
+      }
     } else {
       println(s"[SKIPPED] job=$jobName — incomplete or non-output operation")
     }
