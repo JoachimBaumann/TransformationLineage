@@ -14,6 +14,8 @@ services:
     build: ./DataCapture
     ports:
       - "8080:8080"
+    deploy:
+      replicas: 3
     environment:
       KAFKA_BOOTSTRAP_SERVERS: joachimbaumann.dk:9092
       KAFKA_TOPIC: LineageEvent
